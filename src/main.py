@@ -1,0 +1,109 @@
+import argparse
+import os
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+import shutil
+import yaml
+import random
+import torch
+import Models
+import numpy as np
+torch.cuda.empty_cache()
+from documenter import Documenter
+
+def set_seed(seed):
+    """Set all RNG seeds for reproducible runs."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+ 
+def main():
+    parser = argparse.ArgumentParser(description='Fast Calorimeter Simulation with CaloDreamer')
+    parser.add_argument('param_file', help='yaml parameters file')
+    parser.add_argument('-c', '--use_cuda', action='store_true', default=False,)
+    parser.add_argument('-p', '--plot', action='store_true', default=False,)
+    parser.add_argument('-d', '--model_dir', default=None,)
+    parser.add_argument('-ep', '--epoch', default='')
+    parser.add_argument('-g', '--generate', action='store_true', default=False)
+    parser.add_argument('--which_cuda', default=0) 
+    parser.add_argument('--sampling_type', default='ddpm')
+    parser.add_argument('--seed', type=int, default=None,
+                        help='Override the seed in the param file.')
+
+    args = parser.parse_args()
+    print(args.param_file)
+    
+    with open(args.param_file) as f:
+        params = yaml.load(f, Loader=yaml.FullLoader)
+
+
+    # --- Seeding: CLI flag overrides YAML; YAML overrides default 0 ---
+    # Set before the model is built, since weight initialization draws from
+    # the RNG inside the model constructor.
+    seed = args.seed if args.seed is not None else params.get('seed', 0)
+    params['seed'] = seed  # record the actual seed used into the dumped params
+    set_seed(seed)
+    print('seed: ', seed)
+    use_cuda = torch.cuda.is_available() and args.use_cuda
+
+    device = f'cuda:{args.which_cuda}' if use_cuda else 'cpu'
+    print('device: ', device)
+
+    if args.model_dir:
+        doc = Documenter(params['run_name'], existing_run=args.model_dir)
+    else:
+        doc = Documenter(params['run_name'])
+
+    try:
+        shutil.copy(args.param_file, doc.get_file('params.yaml'))
+    except shutil.SameFileError:
+        pass
+ 
+    dtype = params.get('dtype', '')
+    if dtype=='float64':
+        torch.set_default_dtype(torch.float64)
+    elif dtype=='float16':
+        torch.set_default_dtype(torch.float16)
+    elif dtype=='float32':
+        torch.set_default_dtype(torch.float32)
+
+    model = params.get("model", "TBD")
+    print("I am here ", model)
+    try:
+        model = getattr(Models, model)(params, device, doc)
+    except AttributeError:
+        raise NotImplementedError(f"build_model: Model class {model} not recognised")
+
+    if not args.plot:
+        model.run_training()
+    else:
+        if args.generate:
+            model.load()
+            if params.get("reconstruct", False):
+                x, c = model.reconstruct_n()
+            else:
+                x, c = model.sample_n()
+            model.plot_samples(x, c, name=f"{args.epoch}")
+        else:
+            model.plot_saved_samples(name=f"{args.epoch}")
+
+        # if args.generate:
+        #     x,c=model.sample_trained_model_energy(sampling_type=args.sampling_type)
+        #     # model.load(args.epoch)
+        #     # if params.get("reconstruct", False):
+        #     #     x, c = model.reconstruct_n()
+        #     # else:
+        #     #     x, c = model.sample_n()
+        #     #model.plot_samples(samples=x, conditions=c.cpu())
+        #     model.plot_samples_mimic(samples=x, conditions=c.cpu(), doc=doc)
+        # else:
+        #     model.plot_saved_samples(name=f"{args.epoch}")
+
+    # save parameter file with new entries
+    with open(doc.get_file('final_params.yaml'), 'w') as f:
+        yaml.dump(model.params, f, default_flow_style=False)
+
+if __name__=='__main__':
+    main()
+
+   
