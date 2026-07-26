@@ -1,0 +1,25 @@
+data/
+datasets/
+checkpoints/
+*.pt
+*.pth
+*.h5
+*.npy
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+logs/
+runs/
+wandb/
+.DS_Store
+
+# Generated media & job outputs
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.out
+*.err
+*.csv
