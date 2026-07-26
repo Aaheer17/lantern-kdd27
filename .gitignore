@@ -14,8 +14,11 @@ logs/
 runs/
 wandb/
 .DS_Store
+<<<<<<< HEAD
 
 # Generated media & job outputs
+=======
+>>>>>>> 973557c12b838e4b9a12ae9b4d206bc1f9cdab4b
 *.pdf
 *.png
 *.jpg
@@ -23,3 +26,7 @@ wandb/
 *.out
 *.err
 *.csv
+<<<<<<< HEAD
+=======
+results/
+>>>>>>> 973557c12b838e4b9a12ae9b4d206bc1f9cdab4b

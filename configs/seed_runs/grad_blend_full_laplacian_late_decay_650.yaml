@@ -1,0 +1,179 @@
+run_name: grad_blend_full_laplacian_start_from_beginning
+
+dtype: float32
+mo_method: grad_blend
+use_energy_loss: false
+use_moment_matching: false
+use_sparsity: false
+use_voxel_energy_loss: false
+use_laplacian_loss: true
+laplacian_loss_weight: 0.01
+use_laplacian_schedule: true
+lambda_laplacian_max: 0.01
+lambda_laplacian_min: 0.0
+laplacian_warmup_steps: 62500
+laplacian_full_start_step: 312500
+laplacian_decay_start_step: 1015625  # epoch 650
+laplacian_decay_end_step: 1171875    # epoch 750
+laplacian_loss_eps: 0.1
+lambda_energy: 0.001
+lambda_moment: 0.0001
+lambda_sparsity: 0.0001
+dwa_temperature: 2.0
+config_objectives:
+- diffusion_loss
+- laplacian_loss
+num_timesteps: 1000
+beta_start: 0.0001
+beta_end: 0.02
+beta_schedule: sigmoid
+prediction_type: noise
+occ_tau: 0.0
+occ_temp: 1.0
+model_type: shape
+energy_model: /scratch/fa7sa/LANTERN_rewrite/LANTERN_20_FEB/LANTERN_new/results/20260704_005156_d2_energy_model_DDPM_/
+model: TBD_DIFF
+hdf5_file: /project/biocomplexity/fa7sa/calochallenge_datasets/dataset_2/dataset_2_1.hdf5
+eval_hdf5_file: /project/biocomplexity/fa7sa/calochallenge_datasets/dataset_2/dataset_2_2.hdf5
+val_CFD_hdf5_file: /project/biocomplexity/fa7sa/calochallenge_datasets/dataset_2/dataset_2_1_CFD_REF_2K.hdf5
+voxel_CFD_ref: /project/biocomplexity/fa7sa/calochallenge_datasets/dataset_2/voxel_CFD_ref.hdf5
+xml_filename: /project/biocomplexity/fa7sa/calo_dreamer/src/challenge_files/binning_dataset_2.xml
+val_frac: 0.2
+eps: 1.0e-10
+particle_type: electron
+eval_dataset: '2'
+eval_cut: 0.01515
+shape:
+- 1
+- 45
+- 16
+- 9
+transforms:
+  ScaleVoxels:
+    factor: 0.35
+  NormalizeByElayer:
+    ptype: /project/biocomplexity/fa7sa/calo_dreamer/src/challenge_files/binning_dataset_2.xml
+    xml_file: electron
+  CutValues:
+    cut: 1.0e-07
+  SelectiveUniformNoise:
+    noise_width: 0.0
+    cut: true
+    exclusions:
+    - -45
+    - -44
+    - -43
+    - -42
+    - -41
+    - -40
+    - -39
+    - -38
+    - -37
+    - -36
+    - -35
+    - -34
+    - -33
+    - -32
+    - -31
+    - -30
+    - -29
+    - -28
+    - -27
+    - -26
+    - -25
+    - -24
+    - -23
+    - -22
+    - -21
+    - -20
+    - -19
+    - -18
+    - -17
+    - -16
+    - -15
+    - -14
+    - -13
+    - -12
+    - -11
+    - -10
+    - -9
+    - -8
+    - -7
+    - -6
+    - -5
+    - -4
+    - -3
+    - -2
+    - -1
+  ExclusiveLogitTransform:
+    delta: 1.0e-06
+    rescale: true
+  StandardizeFromFile: {}
+  LogEnergy: {}
+  ScaleEnergy:
+    e_min: 6.907755
+    e_max: 13.81551
+  AddFeaturesToCond:
+    split_index: 6480
+  Reshape:
+    shape:
+    - 1
+    - 45
+    - 16
+    - 9
+lr: 0.001
+max_lr: 0.003
+batch_size: 64
+validate_every: 1
+use_scheduler: true
+lr_scheduler: CosineAnnealing
+weight_decay: 1.0e-05
+betas:
+- 0.9
+- 0.999
+n_epochs: 800
+cycle_epochs: 800
+cycle_pct_start: 0.1
+save_interval: 100001
+clip_gradients_to: 100
+add_noise: false
+validate_voxel_CFD: true
+validate_voxel_CFD_every: 25
+voxel_CFD_ddim_steps: 300
+voxel_CFD_ddim_eta: 0
+sample_periodically: false
+sample_every: 10
+sample_every_n_samples: 1001
+batch_size_sample: 64
+n_samples: 100000
+solver_kwargs:
+  method: rk4
+  options:
+    step_size: 0.02
+network: ViT
+condition_dim: 46
+patch_shape:
+- 3
+- 16
+- 1
+hidden_dim: 240
+depth: 6
+num_heads: 6
+mlp_ratio: 4.0
+augment_batch: false
+pos_embedding_coords: cylindrical
+learn_pos_embed: true
+cos_attn: false
+causal_attn: false
+coarse: false
+blend_alpha: 1
+blend_alpha_decay_start: 120.0
+blend_fallback_threshold: 150.0
+blend_use_gradnorm: false
+use_unweighted_loss_for_grad: false
+blend_anchor_magnitude_to_diff: false
+blend_use_gref_clipping: true
+blend_gref_warmup_epochs: 50
+blend_gref_median_start: 20
+blend_magnitude_ratio_cap: null
+sample_us: false
