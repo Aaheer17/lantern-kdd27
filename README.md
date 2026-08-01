@@ -150,13 +150,13 @@ lantern-kdd27/
 
 ## Citation
 
-<!-- TODO: replace with the final BibTeX once the paper is on arXiv / published. -->
+
 ```bibtex
-@inproceedings{<CITEKEY>,
-  title     = {Lantern: Conflict-Aware Gradient Blending for Physics-Guided Diffusion Models in Calorimeter Simulation},
-  author    = {<AUTHORS>},
-  booktitle = {<VENUE>},
-  year      = {<YEAR>}
+@article{ahmad2026lantern,
+  title={Lantern: Conflict-Aware Gradient Blending for Physics-Guided Diffusion Models in Calorimeter Simulation},
+  author={Ahmad, Farzana Yasmin and Venkataswamy, Vanamala and Fox, Geoffrey},
+  journal={arXiv preprint arXiv:2607.25060},
+  year={2026}
 }
 ```
 
